@@ -3,8 +3,23 @@
 <head lang="en">
 <meta charset="UTF-8">
 <title>Ludum Dare 420</title>
+<link rel="stylesheet" type="text/css" href="styles/ld420.css"/>
 </head>
 <body>
 <h1>Ludum Dare 420</h1>
+
+<h2>Inspired by Desert Strike (StarCraft II arcade game) and Homeworld</h2>
+
+<canvas id="ld420_canvas"
+        width="320"
+        height="320"
+        style="width:100%;height:100%;">
+    If you can read this, your browser does not support the &lt;canvas&gt; tag.
+</canvas>
+
+<script src="scripts/ld420.js"></script>
+<script>
+LD420.init("ld420_canvas");
+</script>
 </body>
 </html>
