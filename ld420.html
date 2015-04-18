@@ -8,7 +8,8 @@
 <body>
 <h1>Ludum Dare 420</h1>
 
-<h2>Inspired by Desert Strike (StarCraft II arcade game) and Homeworld</h2>
+<h2>Inspired by Desert Strike (StarCraft II arcade game), Homeworld, and Black
+    &amp; White</h2>
 
 <canvas id="ld420_canvas"
         width="320"
@@ -18,8 +19,37 @@
 </canvas>
 
 <script src="scripts/ld420.js"></script>
+
+<script src="scripts/game/Game.js"></script>
+<script src="scripts/game/Team.js"></script>
+<script src="scripts/game/Wave.js"></script>
+
+<script src="scripts/graphics/Graphics.js"></script>
+
+<script src="scripts/sandbox/environment/World.js"></script>
+<script src="scripts/sandbox/player/Player.js"></script>
+
+<script src="scripts/sandbox/units/Unit.js"></script>
+<script src="scripts/sandbox/units/actions/UnitAction.js"></script>
+<script src="scripts/sandbox/units/actions/WeaponAction.js"></script>
+
+<script src="scripts/sandbox/units/components/UnitComponent.js"></script>
+<script src="scripts/sandbox/units/components/TeamComponent.js"></script>
+<script src="scripts/sandbox/units/components/PositionComponent.js"></script>
+
+<script src="scripts/sandbox/units/components/effects/EffectComponent.js"></script>
+<script src="scripts/sandbox/units/components/effects/CharmComponent.js"></script>
+
+<script src="scripts/sandbox/units/components/health/HealthComponent.js"></script>
+
+<script src="scripts/sandbox/units/components/weapons/WeaponComponent.js"></script>
+<script src="scripts/sandbox/units/components/weapons/LaserWeaponComponent.js"></script>
+
+<script src="scripts/ui/UI.js"></script>
+
 <script>
 LD420.init("ld420_canvas");
 </script>
+
 </body>
 </html>
