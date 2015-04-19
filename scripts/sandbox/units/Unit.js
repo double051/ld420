@@ -2,74 +2,125 @@
 
 var Unit = function()
 {
-	this.components = [];
+	// state components
+	this.teamComponent = null;
+	this.positionComponent = null;
+	this.healthComponent = null;
 
-	this.teamComponents = [];
-	this.healthComponents = [];
+	// action components
+	this.movementComponent = null;
+	this.weaponComponent = null;
+	this.abilityComponent = null;
 
-	this.positionComponent = new PositionComponent();
+	// pretty components
+	this.bodyComponent = null;
+	this.renderComponent = null;
+
+	// lingering effects (self-repair, damage over time, slow / stun)
+	this.effectComponents = null;
+};
+
+Unit.objects = [];
+Unit.new = function()
+{
+	var object = null;
+	var objects = this.objects;
+
+	if (this.objects.length > 0)
+	{
+		object = objects.pop();
+	}
+	else
+	{
+		object = this.allocate();
+	}
+
+	return object;
+};
+
+Unit.allocate = function()
+{
+	return new Unit();
 };
 
 Unit.prototype = {};
 
-Unit.prototype.addComponent = function(component)
-{
-	this.components.push(component);
+Unit.prototype.objects = Unit.objects;
 
-	if (component instanceof TeamComponent)
+Unit.prototype.allocate = function()
+{
+	Unit.allocate.call(this);
+};
+
+Unit.prototype.new = function()
+{
+	Unit.new.call(this);
+};
+
+Unit.prototype.copy = function()
+{
+	var copy = Unit.new();
+	copy.copyProperties(this);
+
+	return copy;
+};
+
+Unit.prototype.destroy = function()
+{
+	this.objects.push(this);
+};
+
+Unit.prototype.copyProperties = function(source)
+{
+	this.teamComponent = source.teamComponent.copy();
+	this.positionComponent = source.positionComponent.copy();
+	this.healthComponent = source.healthComponent.copy();
+	this.weaponComponent = source.weaponComponent.copy();
+	this.abilityComponent = source.abilityComponent.copy();
+	this.renderComponent = source.renderComponent.copy();
+
+	var effectComponents = [];
+	var sourceEffectComponents = source.effectComponents;
+
+	var effectCount = source.effectComponents.length;
+	for (var effectIndex = 0; effectIndex < effectCount; effectIndex++)
 	{
-		this.addTeamComponent(component);
+		var sourceEffectComponent = sourceEffectComponents[effectIndex];
+		var effectComponent = sourceEffectComponent.copy();
+		effectComponents.push(effectComponent);
 	}
 
-	if (component instanceof HealthComponent)
-	{
-		this.addHealthComponent(component);
-	}
-
-	component.onApplyComponent();
+	this.effectComponents = effectComponents;
 };
 
-Unit.prototype.removeComponent = function(component)
+Unit.prototype.applyAction = function(action)
 {
-	var components = this.components;
-	components.remove(components.indexOf(component));
+	assertInstance(action, UnitAction);
 
-	if (component instanceof TeamComponent)
-	{
-		this.removeTeamComponent(component);
-	}
-
-	if (component instanceof HealthComponent)
-	{
-		this.removeHealthComponent(component);
-	}
+	action.onApplyAction(this);
 };
 
-Unit.prototype.receiveAction = function(action)
+Unit.prototype.setTeamComponent = function(teamComponent)
 {
+	assertInstance(teamComponent, TeamComponent);
 
+	this.teamComponent = teamComponent;
 };
 
-Unit.prototype.addTeamComponent = function(teamComponent)
+Unit.prototype.setHealthComponent = function(healthComponent)
 {
-	this.teamComponents.push(teamComponent);
+	assertInstance(healthComponent, HealthComponent);
+
+	this.healthComponent = healthComponent;
 };
 
-Unit.prototype.removeTeamComponent = function(teamComponent)
+Unit.prototype.getPositionComponent = function()
 {
-	var teamComponents = this.teamComponents;
-
-	teamComponents.remove(teamComponents.indexOf(teamComponent));
+	return this.positionComponent;
 };
 
-Unit.prototype.addHealthComponent = function(teamComponent)
+Unit.prototype.getHealthComponent = function()
 {
-	this.teamComponents.push(teamComponent);
+	return this.healthComponent;
 };
 
-Unit.prototype.removeHealthComponent = function(healthComponent)
-{
-	var healthComponents = this.teamComponents;
-
-	healthComponents.remove(healthComponents.indexOf(healthComponent));
-};

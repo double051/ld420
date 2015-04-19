@@ -12,7 +12,7 @@ EffectComponent.prototype.onApplyComponent = function(unit)
 
 };
 
-EffectComponent.prototype.onUpdate = function()
+EffectComponent.prototype.onUpdateComponent = function()
 {
 
 };

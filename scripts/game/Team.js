@@ -1,13 +1,19 @@
 // Team.js
 
-var Team = function()
+var Team = function(teamId)
 {
-	this.teamId = null;
+	this.teamId = teamId;
+
+	this.wave = new Wave(this);
 };
 
 Team.prototype = {};
 
-Team.prototype.setTeamId = function(teamId)
+Team.prototype.getNextWave = function()
 {
-	this.teamId = teamId;
+	// only one wave for now
+	var wave = this.wave;
+
+	return wave;
 };
+

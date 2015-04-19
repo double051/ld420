@@ -2,7 +2,7 @@
 
 var CharmComponent = function()
 {
-	this.duration = 5.0;
+	this.duration = 0.0;
 	this.age = 0.0;
 	this.teamComponent = null;
 };
@@ -31,4 +31,11 @@ CharmComponent.prototype.onUpdateComponent = function(unit, time)
 CharmComponent.prototype.onRemoveComponent = function(unit)
 {
 	unit.removeComponent(this.teamComponent);
+};
+
+CharmComponent.prototype.copyProperties = function(source)
+{
+	this.duration = source.duration;
+	this.age = source.age;
+	this.teamComponent = source.teamComponent.copy();
 };
