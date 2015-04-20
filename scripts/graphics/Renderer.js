@@ -37,11 +37,16 @@ Renderer.prototype.initWebGL = function()
 	var vertexShaderLines =
 		    [
 			    "// vertex shader",
-			    "precision float mediump",
-			    "attribute vec4 v_position;",
+			    "precision mediump float;",
+			    "attribute vec4 a_position;",
 			    "void main()",
 			    "{",
-			    "gl_Position = vec4(v_position.z, v_position.x, 0.0, 1.0);",
+
+			    "gl_Position = vec4("
+			    + "a_position.z / 100.0, "
+			    + "a_position.x / 10.0, "
+			    + "0.0, 1.0);",
+
 			    "gl_PointSize = 2.0;",
 			    "}"
 		    ];
@@ -49,7 +54,7 @@ Renderer.prototype.initWebGL = function()
 	var fragmentShaderLines =
 		    [
 			    "// fragment shader",
-			    "precision float mediump",
+			    "precision mediump float;",
 			    "uniform vec4 u_color;",
 			    "void main()",
 			    "{",
@@ -60,11 +65,23 @@ Renderer.prototype.initWebGL = function()
 	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 	gl.shaderSource(vertexShader, vertexShaderLines.join("\n"));
 	gl.compileShader(vertexShader);
-	// var vertexShaderCompileStatus = gl.get
+	var vertexShaderCompileStatus = gl.getShaderParameter(vertexShader,
+	                                                      gl.COMPILE_STATUS);
+	if (!vertexShaderCompileStatus)
+	{
+		console.log(gl.getShaderInfoLog(vertexShader));
+	}
 
 	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
 	gl.shaderSource(fragmentShader, fragmentShaderLines.join("\n"));
 	gl.compileShader(fragmentShader);
+
+	var fragmentShaderCompileStatus = gl.getShaderParameter(fragmentShader,
+	                                                        gl.COMPILE_STATUS);
+	if (!fragmentShaderCompileStatus)
+	{
+		console.log(gl.getShaderInfoLog(fragmentShader));
+	}
 
 	var shaderProgram = gl.createProgram();
 	this.shaderProgram = shaderProgram;
@@ -76,6 +93,8 @@ Renderer.prototype.initWebGL = function()
 	gl.useProgram(shaderProgram);
 
 	this.positionAtribute = gl.getAttribLocation(shaderProgram, "a_position");
+	gl.enableVertexAttribArray(this.positionAtribute);
+
 	this.colorUniform = gl.getUniformLocation(shaderProgram, "u_color");
 
 	var vertexBuffer = gl.createBuffer();
@@ -90,8 +109,7 @@ Renderer.prototype.renderWorld = function(world)
 
 	this.startFrame();
 
-	var units = this.world.getAllUnits();
-	this.renderUnits(units);
+	this.renderUnits(world.unitsTeam0, world.unitsTeam1);
 };
 
 Renderer.prototype.startFrame = function()
@@ -120,8 +138,8 @@ Renderer.prototype.renderUnits = function(units0, units1)
 		// var renderComponentId = unit.renderComponentId;
 
 		// var bodyRadius = unit.state[indices.bodyRadius];
-		var position0 = unit0.state.position;
-		vertexBufferData.set(position0, unitCount0 * vertexValueCount);
+		var position0 = unit0.position;
+		vertexBufferData.set(position0, unitIndex0 * vertexValueCount);
 	}
 
 	for (var unitIndex1 = 0; unitIndex1 < unitCount1; unitIndex1++)
@@ -130,9 +148,9 @@ Renderer.prototype.renderUnits = function(units0, units1)
 		// var renderComponentId = unit.renderComponentId;
 
 		// var bodyRadius = unit.state[indices.bodyRadius];
-		var position1 = unit1.state.position;
+		var position1 = unit1.position;
 		vertexBufferData.set(position1,
-		                 (unitCount0 + unitIndex1) * vertexValueCount);
+		                     (unitCount0 + unitIndex1) * vertexValueCount);
 	}
 
 	var gl = this.gl;

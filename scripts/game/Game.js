@@ -31,6 +31,8 @@ var Game = function()
 		requestAnimationFrame(self.animationFrame);
 	};
 
+	requestAnimationFrame(this.animationFrame);
+
 	this.simulationFrame = function()
 	{
 		self.update(self.simulationTimeDelta);
