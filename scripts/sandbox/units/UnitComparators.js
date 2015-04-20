@@ -5,6 +5,35 @@
 
 var UnitComparators = {};
 
+// distance
+
+UnitComparators.distanceAscending = function(position)
+{
+	return function(a, b)
+	{
+		var positionA = a.position;
+		var positionB = b.position;
+
+		var distanceAX = positionA[0] - position[0];
+		var distanceAY = positionA[1] - position[1];
+		var distanceAZ = positionA[2] - position[2];
+
+		var distanceBX = positionB[0] - position[0];
+		var distanceBY = positionB[1] - position[1];
+		var distanceBZ = positionB[2] - position[2];
+
+		var distanceA = ((distanceAX * distanceAX)
+		                 + (distanceAY * distanceAY)
+		                 + (distanceAZ * distanceAZ));
+
+		var distanceB = ((distanceBX * distanceBX)
+		                 + (distanceBY * distanceBY)
+		                 + (distanceBZ * distanceBZ));
+
+		return distanceA - distanceB;
+	}
+};
+
 // position
 
 // x

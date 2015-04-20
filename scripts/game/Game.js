@@ -20,6 +20,25 @@ var Game = function()
 	this.resourceGrantInterval = 1.0;
 	this.resourceGrantMin = 10;
 	this.resourceGrantMax = 100;
+
+	this.simulationTimeDelta = 0.1;
+
+	var self = this;
+	this.animationFrame = function()
+	{
+		self.render();
+
+		requestAnimationFrame(self.animationFrame);
+	};
+
+	this.simulationFrame = function()
+	{
+		self.update(self.simulationTimeDelta);
+	};
+
+	this.interval = setInterval(this.simulationFrame, 100);
+
+	this.spawnCount = 0;
 };
 
 Game.prototype = {};
@@ -47,14 +66,24 @@ Game.prototype.update = function(timeDelta)
 
 	var lastWaveSpawnTime = this.lastWaveSpawnTime;
 	var waveSpawnInterval = this.waveSpawnInterval;
-	if ((currentTime - lastWaveSpawnTime) > waveSpawnInterval)
+	if (lastWaveSpawnTime <= 0.0
+	    || (currentTime - lastWaveSpawnTime) > waveSpawnInterval)
 	{
 		this.spawnWaves();
+
+		this.lastWaveSpawnTime = currentTime;
 	}
+
+	var world = this.world;
+	world.update(timeDelta);
+
+	this.time = currentTime;
 };
 
 Game.prototype.spawnWaves = function()
 {
+	this.spawnCount += 1;
+
 	var world = this.world;
 	var teams = this.teams;
 
@@ -63,8 +92,33 @@ Game.prototype.spawnWaves = function()
 	{
 		var team = teams[teamIndex];
 		var wave = team.getNextWave();
-		var waveUnits = wave.getNewUnits();
+		var waveUnits = wave.getSpawnUnits();
 
-		world.addUnits(waveUnits);
+		world.addUnits(waveUnits, teamIndex);
 	}
+
+	var team0Count = world.unitsTeam0.length;
+	var team1Count = world.unitsTeam0.length;
+	console.log("spawn " + this.spawnCount + ": "
+	            + team0Count + " | " + team1Count);
+};
+
+Game.prototype.setCanvas = function(canvas)
+{
+	assertCanvas(canvas);
+
+	this.canvas = canvas;
+	this.initRenderer();
+};
+
+Game.prototype.initRenderer = function()
+{
+	this.renderer = new Renderer(this.canvas);
+};
+
+Game.prototype.render = function()
+{
+	var renderer = this.renderer;
+	var world = this.world;
+	renderer.renderWorld(world);
 };

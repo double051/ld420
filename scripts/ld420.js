@@ -5,20 +5,16 @@ var LD420 = {};
 LD420.init = function(canvasId)
 {
 	LD420.testUnits();
-	LD420.testUnitComponents();
 
-	LD420.testGame();
-	LD420.testRenderer();
-
-	LD420.initCanvas(canvasId);
+	LD420.testGame(canvasId);
 };
 
 LD420.testUnits = function()
 {
-	var unit0 = Unit.new();
+	var unit0 = VectorUnit.new();
 	unit0.destroy();
 
-	var unit1 = Unit.new();
+	var unit1 = VectorUnit.new();
 	assertEqual(unit0, unit1);
 
 	var unit2 = unit1.new();
@@ -27,89 +23,19 @@ LD420.testUnits = function()
 	assertNotEqual(unit1, unit2);
 };
 
-LD420.testUnitComponents = function()
+LD420.testGame = function(canvasId)
 {
-	var unitComponent0 = UnitComponent.new();
-	unitComponent0.destroy();
+	var game = new Game();
 
-	var unitComponent1 = UnitComponent.new();
-	unitComponent1.destroy();
+	var team0 = new Team(0);
+	team0.setSpawnPositionZ(-50.0);
 
-	var unitComponent2 = UnitComponent.new();
+	var team1 = new Team(1);
+	team1.setSpawnPositionZ(50.0);
 
-	assertEqual(unitComponent0, unitComponent1);
-	assertEqual(unitComponent1, unitComponent2);
-};
+	game.addTeam(team0);
+	game.addTeam(team1);
 
-LD420.initCanvas = function(canvasId)
-{
 	var canvas = document.getElementById(canvasId);
-
-	var webglOptions =
-	    {
-		    antialias : true
-	    };
-
-	var gl = (canvas.getContext("webgl", webglOptions)
-	          || canvas.getContext("experimental-webgl", webglOptions));
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.clear(gl.COLOR_BUFFER_BIT);
-};
-
-LD420.testGame = function()
-{
-	var game = new Game();
-
-	// Team A
-
-	var teamA = new Team(0);
-
-	var teamAComponent = TeamComponent.new();
-	teamAComponent.setTeam(teamA);
-
-	var shipA0 = Unit.new();
-	shipA0.setTeamComponent(teamAComponent.copy());
-
-	var shipA1 = Unit.new();
-	shipA1.setTeamComponent(teamAComponent.copy());
-
-	// Team B
-	var teamB = new Team(1);
-
-	var teamBComponent = TeamComponent.new();
-	teamBComponent.setTeam(teamB);
-	var shipB = Unit.new();
-	shipB.setTeamComponent(teamBComponent.copy());
-
-	// Team C
-
-	var teamC = new Team(2);
-
-	var teamCComponent = TeamComponent.new();
-	teamCComponent.setTeam(teamC);
-	var shipC = Unit.new();
-	shipC.setTeamComponent(teamCComponent.copy());
-
-	var world = game.world;
-	world.addUnit(shipA0);
-	world.addUnit(shipA1);
-	world.addUnit(shipB);
-	world.addUnit(shipC);
-};
-
-LD420.testRenderer = function()
-{
-	var game = new Game();
-	var world = game.world;
-
-	var renderer = new Renderer();
-
-	var animate = function(time)
-	{
-		renderer.render(world);
-
-		requestAnimationFrame(animate);
-	};
-
-	requestAnimationFrame(animate);
+	game.setCanvas(canvas);
 };
