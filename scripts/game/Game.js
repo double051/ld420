@@ -13,7 +13,7 @@ var Game = function()
 	this.gameTimeMax = 60 * 15;
 
 	// waves spawn every 20 seconds
-	this.waveSpawnInterval = 20.0;
+	this.waveSpawnInterval = 2.5;
 	this.lastWaveSpawnTime = 0.0;
 
 	// resource acquisition rates, grows linear as the game progresses
@@ -35,6 +35,7 @@ var Game = function()
 
 	this.simulationFrame = function()
 	{
+		self.update(self.simulationTimeDelta);
 		self.update(self.simulationTimeDelta);
 	};
 

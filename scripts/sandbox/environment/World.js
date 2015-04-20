@@ -304,7 +304,7 @@ World.prototype.update = function(timeDelta)
 		{
 			// dead unit
 			unit.destroy();
-			console.log("unit died");
+			// console.log("unit died");
 		}
 		else
 		{

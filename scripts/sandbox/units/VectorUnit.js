@@ -164,10 +164,10 @@ VectorUnit.prototype.actOnTarget = function(selfCopy,
 			}
 
 			targetCopyState[indices.health] += healthDelta;
-			console.log(""
-			            + targetCopyState[indices.health]
-			            + " + "
-			            + healthDelta);
+			// console.log(""
+			//             + targetCopyState[indices.health]
+			//             + " + "
+			//             + healthDelta);
 
 			// reset cooldown
 			state[cooldownRemaining] = state[indices.cooldown];
