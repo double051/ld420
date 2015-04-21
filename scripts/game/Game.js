@@ -51,6 +51,27 @@ var Game = function()
 
 Game.prototype = {};
 
+Game.prototype.newGame = function()
+{
+	var world = this.world;
+	world.unitsTeam0 = [];
+	world.unitsTeam1 = [];
+
+	var teams = this.teams;
+	var teamCount = teams.length;
+
+	for (var teamIndex = 0; teamIndex < teamCount; teamIndex++)
+	{
+		var team = teams[teamIndex];
+		team.reset();
+
+		world.addUnit(team.baseUnit, teamIndex);
+	}
+
+	this.time = 0.0;
+	this.lastWaveSpawnTime = 0.0;
+};
+
 Game.prototype.addTeam = function(team)
 {
 	assertInstance(team, Team);
@@ -71,11 +92,20 @@ Game.prototype.setWaveSpawnInterval = function(waveSpawnInterval)
 
 Game.prototype.update = function(timeDelta)
 {
+	var world = this.world;
+	if (world.unitsTeam0.length <= 0
+	    || world.unitsTeam1.length <= 0)
+	{
+		// game over, start a new game
+		this.newGame();
+	}
+
 	var oldTime = this.time;
 	var currentTime = oldTime + timeDelta;
 
 	var lastWaveSpawnTime = this.lastWaveSpawnTime;
 	var waveSpawnInterval = this.waveSpawnInterval;
+
 	if (lastWaveSpawnTime <= 0.0
 	    || (currentTime - lastWaveSpawnTime) > waveSpawnInterval)
 	{
@@ -84,7 +114,6 @@ Game.prototype.update = function(timeDelta)
 		this.lastWaveSpawnTime = currentTime;
 	}
 
-	var world = this.world;
 	world.update(timeDelta);
 
 	this.time = currentTime;

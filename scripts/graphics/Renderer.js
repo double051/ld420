@@ -141,11 +141,11 @@ Renderer.prototype.renderUnits = function(units0, units1)
 	gl.vertexAttribPointer(positionAttribute, 4, gl.FLOAT, false, 0, 0);
 
 	// team0 - red
-	gl.uniform4f(colorUniform, 1.0, 0.0, 0.0, 1.0);
+	gl.uniform4f(colorUniform, 1.0, 0.5, 0.0, 1.0);
 	gl.drawArrays(gl.POINTS, 0, unitCount0);
 
 	// team1 - blue
-	gl.uniform4f(colorUniform, 0.0, 0.0, 1.0, 1.0);
+	gl.uniform4f(colorUniform, 0.0, 0.5, 1.0, 1.0);
 	gl.drawArrays(gl.POINTS, unitCount0, unitCount1);
 };
 
@@ -154,21 +154,38 @@ Renderer.prototype.initControls = function()
 	var canvas = this.canvas;
 	var self = this;
 
-	canvas.addEventListener("mousedown", function(event)
+	canvas.addEventListener("mousedown", function(mouseEvent)
 	{
-		self.onMouseDown(event);
+		self.onMouseDown(mouseEvent);
 	});
 
-	canvas.addEventListener("mousemove", function(event)
+	canvas.addEventListener("mousemove", function(mouseEvent)
 	{
-		self.onMouseMove(event);
+		self.onMouseMove(mouseEvent);
 	});
 
-	canvas.addEventListener("mouseup", function(event)
+	canvas.addEventListener("mouseup", function(mouseEvent)
 	{
-		self.onMouseUp(event);
+		self.onMouseUp(mouseEvent);
+	});
+
+	canvas.addEventListener("touchstart", function(touchEvent)
+	{
+		self.onTouchStart(touchEvent);
+	});
+
+	canvas.addEventListener("touchmove", function(touchEvent)
+	{
+		self.onTouchMove(touchEvent);
+	});
+
+	canvas.addEventListener("touchend", function(touchEvent)
+	{
+		self.onTouchEnd(touchEvent);
 	});
 };
+
+// mouse events
 
 Renderer.prototype.onMouseDown = function(event)
 {
@@ -201,4 +218,61 @@ Renderer.prototype.onMouseMove = function(event)
 Renderer.prototype.onMouseUp = function(event)
 {
 	this.mouseDown = false;
+};
+
+// touch events
+
+Renderer.prototype.onTouchStart = function(touchEvent)
+{
+	assertDOMEvent(touchEvent);
+
+	var touches = touchEvent.touches;
+	if (!this.touchStart
+		&& touches
+	    && touches.length > 0)
+	{
+		this.touchStart = true;
+		touchEvent.preventDefault();
+
+		var touch0 = touches[0];
+		this.touchX = touch0.clientX;
+		this.touchY = touch0.clientY;
+	}
+};
+
+Renderer.prototype.onTouchMove = function(touchEvent)
+{
+	assertDOMEvent(touchEvent);
+
+	if (this.touchStart)
+	{
+		touchEvent.preventDefault();
+
+		var touch0 = touchEvent.touches[0];
+
+		var touchX = touch0.clientX;
+		var touchY = touch0.clientY;
+
+		var deltaX = touchX - this.touchX;
+		var deltaY = touchY - this.touchY;
+
+		this.camera.rotate(deltaX, deltaY);
+
+		this.touchX = touchX;
+		this.touchY = touchY;
+	}
+};
+
+Renderer.prototype.onTouchEnd = function(touchEvent)
+{
+	assertDOMEvent(touchEvent);
+
+	var touches = touchEvent.touches;
+	if (touches
+	    && touches.length === 0)
+	{
+		touchEvent.preventDefault();
+
+		this.touchStart = false;
+	}
 };

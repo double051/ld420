@@ -12,6 +12,16 @@ var Team = function(teamId)
 	var unitFactory = new UnitFactory();
 	this.unitFactory = unitFactory;
 
+	this.reset();
+};
+
+Team.prototype = {};
+
+Team.prototype.reset = function()
+{
+	this.wave.units = [];
+
+	var unitFactory = this.unitFactory;
 	unitFactory.setUnitState();
 
 	var unitCount = 30;
@@ -24,8 +34,6 @@ var Team = function(teamId)
 	baseFactory.setUnitState();
 	this.baseUnit = baseFactory.getUnitCopy();
 };
-
-Team.prototype = {};
 
 Team.prototype.getNextWave = function()
 {
