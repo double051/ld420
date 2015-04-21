@@ -33,6 +33,8 @@ Team.prototype.reset = function()
 	var baseFactory = new BaseFactory();
 	baseFactory.setUnitState();
 	this.baseUnit = baseFactory.getUnitCopy();
+
+	this.setSpawnPositionZ(this.spawnPositionZ);
 };
 
 Team.prototype.getNextWave = function()

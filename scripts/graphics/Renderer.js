@@ -19,6 +19,7 @@ var Renderer = function(canvas)
 	var gl = (canvas.getContext("webgl", webglOptions)
 	          || canvas.getContext("experimental-webgl", webglOptions));
 	this.gl = gl;
+
 	if (gl)
 	{
 		this.initWebGL();
@@ -130,7 +131,11 @@ Renderer.prototype.renderUnits = function(units0, units1)
 		var index1 = (unitCount0 + unitIndex1) * vertexValueCount;
 
 		vertexBufferData.set(position1, index1);
-		vertexBufferData[index1 + 3] = state1[indices.bodyRadius];
+		// vertexBufferData[index1 + 3] = state1[indices.bodyRadius];
+
+		var healthPercent = state1[indices.health] / state1[indices.maxHealth];
+		var bodyRadius = state1[indices.bodyRadius];
+		vertexBufferData[index1 + 3] = healthPercent * bodyRadius;
 	}
 
 	var gl = this.gl;
@@ -187,23 +192,23 @@ Renderer.prototype.initControls = function()
 
 // mouse events
 
-Renderer.prototype.onMouseDown = function(event)
+Renderer.prototype.onMouseDown = function(mouseEvent)
 {
-	assertDOMEvent(event);
+	assertDOMEvent(mouseEvent);
 
 	this.mouseDown = true;
-	this.mouseX = event.clientX;
-	this.mouseY = event.clientY;
+	this.mouseX = mouseEvent.clientX;
+	this.mouseY = mouseEvent.clientY;
 };
 
-Renderer.prototype.onMouseMove = function(event)
+Renderer.prototype.onMouseMove = function(mouseEvent)
 {
 	if (this.mouseDown)
 	{
-		assertDOMEvent(event);
+		assertDOMEvent(mouseEvent);
 
-		var mouseX = event.clientX;
-		var mouseY = event.clientY;
+		var mouseX = mouseEvent.clientX;
+		var mouseY = mouseEvent.clientY;
 
 		var deltaX = mouseX - this.mouseX;
 		var deltaY = mouseY - this.mouseY;
@@ -215,7 +220,7 @@ Renderer.prototype.onMouseMove = function(event)
 	}
 };
 
-Renderer.prototype.onMouseUp = function(event)
+Renderer.prototype.onMouseUp = function(mouseEvent)
 {
 	this.mouseDown = false;
 };
@@ -228,7 +233,7 @@ Renderer.prototype.onTouchStart = function(touchEvent)
 
 	var touches = touchEvent.touches;
 	if (!this.touchStart
-		&& touches
+	    && touches
 	    && touches.length > 0)
 	{
 		this.touchStart = true;

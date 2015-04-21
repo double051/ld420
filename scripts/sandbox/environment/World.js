@@ -112,7 +112,7 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 	var bodyRadius = state[bodyRadiusIndex];
 	var bodyRadiusSquared = bodyRadius * bodyRadius;
 
-	var closestDistanceSquared = 65535;
+	var closestDistanceSquared = -1;
 
 	// keep targeting closestZ
 	var targetsBehindOutOfRangeZ = true;
@@ -198,7 +198,8 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 			                                   - bodyRadiusSquared
 			                                   - targetBodyRadiusSquared,
 			                                   0);
-			if (bodyDistanceSquared < closestDistanceSquared)
+			if (closestDistanceSquared < 0
+			    || bodyDistanceSquared < closestDistanceSquared)
 			{
 				closestTargetIndex = unitIndex;
 				closestDistanceSquared = bodyDistanceSquared;
