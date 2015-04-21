@@ -151,7 +151,23 @@ Renderer.prototype.renderUnits = function(units0, units1)
 
 Renderer.prototype.initControls = function()
 {
+	var canvas = this.canvas;
+	var self = this;
 
+	canvas.addEventListener("mousedown", function(event)
+	{
+		self.onMouseDown(event);
+	});
+
+	canvas.addEventListener("mousemove", function(event)
+	{
+		self.onMouseMove(event);
+	});
+
+	canvas.addEventListener("mouseup", function(event)
+	{
+		self.onMouseUp(event);
+	});
 };
 
 Renderer.prototype.onMouseDown = function(event)
@@ -165,11 +181,24 @@ Renderer.prototype.onMouseDown = function(event)
 
 Renderer.prototype.onMouseMove = function(event)
 {
-	assertDOMEvent(event);
-
 	if (this.mouseDown)
 	{
-		var mouseX = event.mouseX;
-		var mouseY = event.mouseY;
+		assertDOMEvent(event);
+
+		var mouseX = event.clientX;
+		var mouseY = event.clientY;
+
+		var deltaX = mouseX - this.mouseX;
+		var deltaY = mouseY - this.mouseY;
+
+		this.camera.rotate(deltaX, deltaY);
+
+		this.mouseX = mouseX;
+		this.mouseY = mouseY;
 	}
+};
+
+Renderer.prototype.onMouseUp = function(event)
+{
+	this.mouseDown = false;
 };

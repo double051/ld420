@@ -90,7 +90,7 @@ ShaderComponent.prototype.glInitVertexShader = function(gl)
 			"vec4 position = vec4(a_position.xyz, 1.0);",
 			"gl_Position = vec4(u_projectionMatrix * u_viewMatrix * position);",
 
-			"gl_PointSize = a_position.w;",
+			"gl_PointSize = 2.0 * a_position.w;",
 			"}"
 		];
 

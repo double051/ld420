@@ -148,11 +148,3 @@ Wave.prototype.sortUnitsByBodyRadiusDescending = function()
 	               UnitComparators.bodyRadiusDescending);
 	return this.unitsByBodyRadiusDescending;
 };
-
-Wave.prototype.sortUnitArrays = function()
-{
-	this.sortUnitsByBodyRadiusAscending();
-	this.sortUnitsByBodyRadiusDescending();
-};
-
-

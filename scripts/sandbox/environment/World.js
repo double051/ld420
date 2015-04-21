@@ -124,7 +124,7 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 	// stop checking for targets
 	var targetsInFrontOutOfRangeZ = false;
 
-	// done after first targets in front out of range
+	// done after first target, in front, out of range
 
 	var unitCount = unitsSortedZ.length;
 	for (var unitIndex = 0; unitIndex < unitCount; unitIndex++)
@@ -212,27 +212,6 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 	}
 
 	return closestTargetIndex;
-};
-
-World.prototype.getUnitActions = function(units, targetIndices)
-{
-	var unitActions = [];
-
-	var unitCount = units.length;
-	var targetIndicesCount = targetIndices.length;
-	assertEqual(unitCount, targetIndicesCount);
-
-	for (var unitIndex = 0; unitIndex < unitCount; unitIndex++)
-	{
-		var targetIndex = targetIndices[unitIndex];
-		var unit = units[unitIndex];
-
-		var target = units[targetIndex];
-		var action = unit.getAction(target);
-		unitActions.push(action);
-	}
-
-	return unitActions;
 };
 
 World.prototype.update = function(timeDelta)
@@ -378,21 +357,3 @@ World.prototype.getUnitStateMatrix = function(unitCount)
 
 	return unitStateMatrix;
 };
-
-World.prototype.getTargets = function(unit,
-                                      units,
-                                      maxTargetCount)
-{
-	units.sort(UnitComparators.distanceAscending(unit.position));
-	var targets = units.slice(0, Math.min(units.length, maxTargetCount));
-
-	return targets;
-};
-
-World.prototype.getTargetIndexByDistance = function(unit,
-                                                    enemyUnitsCopy)
-{
-
-};
-
-

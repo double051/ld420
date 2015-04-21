@@ -11,6 +11,7 @@ var Camera = function()
 
 	this.rotationHorizontal = Math.PI / 2;
 	this.rotationVertical = Math.PI / 4;
+	this.rotationScale = 0.01;
 
 	this.viewMatrix = mat4.create();
 
@@ -33,7 +34,7 @@ Camera.prototype.updateView = function()
 	var targetPosition = this.targetPosition;
 	var up = this.up;
 
-	this.rotationHorizontal += 0.01;
+	// this.rotationHorizontal += 0.01;
 
 	vec3.set(position, 0, 0, this.distance);
 	vec3.rotateX(position, position, targetPosition, this.rotationVertical);
@@ -66,3 +67,15 @@ Camera.prototype.glSetUniformData = function(gl, shaderComponent)
 	gl.uniformMatrix4fv(projectionMatrixUniform, false, this.perspectiveMatrix);
 };
 
+Camera.prototype.rotate = function(deltaX, deltaY)
+{
+	var rotationScale = this.rotationScale;
+	var rotationHorizontal = this.rotationHorizontal + (deltaX * rotationScale);
+	var rotationVertical = this.rotationVertical + (deltaY * rotationScale);
+
+	var halfPi = Math.PI / 2.0;
+	rotationVertical = clamp(rotationVertical, -halfPi, halfPi);
+
+	this.rotationHorizontal = rotationHorizontal;
+	this.rotationVertical = rotationVertical;
+};

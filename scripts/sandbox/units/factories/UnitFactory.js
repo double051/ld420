@@ -18,7 +18,7 @@ var UnitFactory = function()
 	this.abilityRadius = 0.0;
 	this.abilityFalloff = 0.0;
 
-	this.cooldown = 0.8;
+	this.cooldown = 1.0;
 };
 
 UnitFactory.prototype = {};
