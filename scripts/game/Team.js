@@ -9,21 +9,28 @@ var Team = function(teamId)
 	this.wave = new Wave(this);
 
 	// temp add units
-	this.unitFactory = new UnitFactory();
-	this.unitFactory.setUnitState();
+	var unitFactory = new UnitFactory();
+	this.unitFactory = unitFactory;
 
-	var unit = this.unitFactory.unit;
-	var unitCount = 11;
+	unitFactory.setUnitState();
+
+	var unitCount = 30;
 	for (var unitIndex = 0; unitIndex < unitCount; unitIndex++)
 	{
-		this.wave.addUnit(unit.copy());
+		this.wave.addUnit(unitFactory.getUnitCopy());
 	}
+
+	var baseFactory = new BaseFactory();
+	baseFactory.setUnitState();
+	this.baseUnit = baseFactory.getUnitCopy();
 };
 
 Team.prototype = {};
 
 Team.prototype.getNextWave = function()
 {
+	this.wave.addUnit(this.unitFactory.getUnitCopy());
+
 	// only one wave for now
 	var wave = this.wave;
 
@@ -36,4 +43,5 @@ Team.prototype.setSpawnPositionZ = function(spawnPositionZ)
 
 	this.spawnPositionZ = spawnPositionZ;
 	this.wave.setSpawnPositionZ(spawnPositionZ);
+	this.baseUnit.position[2] = spawnPositionZ;
 };

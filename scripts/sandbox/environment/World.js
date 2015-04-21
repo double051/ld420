@@ -63,7 +63,7 @@ World.prototype.getTeamTargetIndices = function(teamUnitsSortedZ,
 
 	var stateIndices = VectorUnit.stateIndices;
 	var teamUnitCount = teamUnitsSortedZ.length;
-	for (var unitIndex = 0; unitIndex < teamUnitCount; unitIndex)
+	for (var unitIndex = 0; unitIndex < teamUnitCount; unitIndex++)
 	{
 		var unit = teamUnitsSortedZ[unitIndex];
 		var changeHealth = unit.state[stateIndices.changeHealth];
@@ -94,7 +94,7 @@ World.prototype.getTeamTargetIndices = function(teamUnitsSortedZ,
 
 World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 {
-	var closestTarget = null;
+	var closestTargetIndex = -1;
 
 	var indices = VectorUnit.stateIndices;
 	var state = unit.state;
@@ -129,7 +129,7 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 	var unitCount = unitsSortedZ.length;
 	for (var unitIndex = 0; unitIndex < unitCount; unitIndex++)
 	{
-		var target = unitsSortedZ;
+		var target = unitsSortedZ[unitIndex];
 		var targetState = target.state;
 
 		var targetBodyRadius = targetState[bodyRadiusIndex];
@@ -141,8 +141,22 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 		var bodyDeltaZ = Math.max(deltaZ - bodyRadius - targetBodyRadius, 0);
 
 		var inRangeZ = bodyDeltaZ <= range;
-		if (inRangeZ)
+		var targetInFront = (deltaZ * direction >= 0);
+
+		if ((targetsBehindOutOfRangeZ
+		     || targetsBehindInRangeZ)
+		    && targetInFront)
 		{
+			targetsBehindOutOfRangeZ = false;
+			targetsBehindInRangeZ = false;
+			if (inRangeZ)
+			{
+				targetsInFrontInRangeZ = true;
+			}
+			else
+			{
+				targetsInFrontOutOfRangeZ = true;
+			}
 		}
 
 		if (targetsBehindOutOfRangeZ && inRangeZ)
@@ -150,8 +164,6 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 			targetsBehindOutOfRangeZ = false;
 			targetsBehindInRangeZ = true;
 		}
-
-		var targetInFront = (deltaZ * direction >= 0);
 
 		if (targetsBehindInRangeZ && targetInFront)
 		{
@@ -167,7 +179,9 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 
 		if (targetsInFrontOutOfRangeZ)
 		{
-			closestTarget = closestTarget || target;
+			closestTargetIndex = (closestTargetIndex >= 0
+				? closestTargetIndex
+				: unitIndex);
 
 			// done searching
 			break;
@@ -186,18 +200,18 @@ World.prototype.getClosestTarget = function(unit, unitsSortedZ, direction)
 			                                   0);
 			if (bodyDistanceSquared < closestDistanceSquared)
 			{
-				closestTarget = target;
+				closestTargetIndex = unitIndex;
 				closestDistanceSquared = bodyDistanceSquared;
 			}
 		}
 		else if (targetsBehindOutOfRangeZ)
 		{
-			closestTarget = target;
+			closestTargetIndex = unitIndex;
 			closestDistanceSquared = bodyDeltaZ * bodyDeltaZ;
 		}
 	}
 
-	return closestTarget;
+	return closestTargetIndex;
 };
 
 World.prototype.getUnitActions = function(units, targetIndices)
@@ -250,15 +264,15 @@ World.prototype.update = function(timeDelta)
 		unitsAllCopy[i] = unitsAll[i].copy();
 	}
 
-	// var targetIndices0 = this.getTeamTargetIndices(unitsTeam0, unitsTeam1, 1);
-	// var targetIndices1 = this.getTeamTargetIndices(unitsTeam1, unitsTeam0, -1);
+	var targetIndices0 = this.getTeamTargetIndices(unitsTeam0, unitsTeam1, 1);
+	var targetIndices1 = this.getTeamTargetIndices(unitsTeam1, unitsTeam0, -1);
 
 	// determine target indices
 	var targetIndices = [];
 	for (var index0 = 0; index0 < unitCount0; index0++)
 	{
-		// var targetIndex0 = targetIndices0[index0];
-		var targetIndex0 = 0;
+		var targetIndex0 = targetIndices0[index0];
+		// var targetIndex0 = 0;
 		targetIndices.push(targetIndex0 >= 0
 			                   ? targetIndex0 + unitCount0
 			                   : -targetIndex0 - 1);
@@ -266,8 +280,8 @@ World.prototype.update = function(timeDelta)
 
 	for (var index1 = 0; index1 < unitCount1; index1++)
 	{
-		// var targetIndex1 = targetIndices1[index1];
-		var targetIndex1 = 0;
+		var targetIndex1 = targetIndices1[index1];
+		// var targetIndex1 = 0;
 		targetIndices.push(targetIndex1 >= 0
 			                   ? targetIndex1
 			                   : -targetIndex1 - 1 + unitCount0);

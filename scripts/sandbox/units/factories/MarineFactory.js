@@ -1,4 +1,4 @@
-//
+// MarinFactor.js
 
 var MarineFactory = function()
 {
@@ -21,9 +21,15 @@ var MarineFactory = function()
 
 MarineFactory.prototype = {};
 
-MarineFactory.prototype.setState
-
-MarineFactory.prototype.getUnit = function()
+MarineFactory.prototype.getUnitCopy = function()
 {
+	var unitCopy = this.unit.copy();
 
+	unitCopy.state[VectorUnit.stateIndices.speed] += (2 * Math.random() - 1);
+	unitCopy.state[VectorUnit.stateIndices.changeHealth] += (40
+	                                                         * Math.random()
+	                                                         - 20);
+	unitCopy.state[VectorUnit.stateIndices.range] += (10 * Math.random() - 5);
+
+	return unitCopy;
 };

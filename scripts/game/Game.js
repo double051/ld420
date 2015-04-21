@@ -13,7 +13,7 @@ var Game = function()
 	this.gameTimeMax = 60 * 15;
 
 	// waves spawn every 20 seconds
-	this.waveSpawnInterval = 2.5;
+	this.waveSpawnInterval = 60;
 	this.lastWaveSpawnTime = 0.0;
 
 	// resource acquisition rates, grows linear as the game progresses
@@ -22,10 +22,13 @@ var Game = function()
 	this.resourceGrantMax = 100;
 
 	this.simulationTimeDelta = 0.1;
+	this.intervalMilliseconds = 25;
 
 	var self = this;
 	this.animationFrame = function()
 	{
+		self.update(self.simulationTimeDelta);
+
 		self.render();
 
 		requestAnimationFrame(self.animationFrame);
@@ -35,11 +38,13 @@ var Game = function()
 
 	this.simulationFrame = function()
 	{
-		self.update(self.simulationTimeDelta);
-		self.update(self.simulationTimeDelta);
+		// self.update(self.simulationTimeDelta);
+		// self.update(self.simulationTimeDelta);
+		// self.update(self.simulationTimeDelta);
 	};
 
-	this.interval = setInterval(this.simulationFrame, 100);
+	// this.interval = setInterval(this.simulationFrame,
+	//                             this.intervalMilliseconds);
 
 	this.spawnCount = 0;
 };
@@ -50,6 +55,8 @@ Game.prototype.addTeam = function(team)
 {
 	assertInstance(team, Team);
 	this.teams.push(team);
+
+	this.world.addUnit(team.baseUnit, team.teamId);
 };
 
 Game.prototype.addPlayer = function(player)

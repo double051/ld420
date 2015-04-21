@@ -5,6 +5,12 @@ var Renderer = function(canvas)
 	assertCanvas(canvas);
 	this.canvas = canvas;
 
+	this.canvasWidth = 0;
+	this.canvasHeight = 0;
+
+	this.camera = new Camera();
+	this.shaderComponent = new ShaderComponent();
+
 	var webglOptions =
 	    {
 		    antialias : true
@@ -16,6 +22,7 @@ var Renderer = function(canvas)
 	if (gl)
 	{
 		this.initWebGL();
+		this.initControls();
 	}
 	else
 	{
@@ -34,68 +41,7 @@ Renderer.prototype.initWebGL = function()
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	var vertexShaderLines =
-		    [
-			    "// vertex shader",
-			    "precision mediump float;",
-			    "attribute vec4 a_position;",
-			    "void main()",
-			    "{",
-
-			    "gl_Position = vec4("
-			    + "a_position.z / 100.0, "
-			    + "a_position.x / 10.0, "
-			    + "0.0, 1.0);",
-
-			    "gl_PointSize = 2.0;",
-			    "}"
-		    ];
-
-	var fragmentShaderLines =
-		    [
-			    "// fragment shader",
-			    "precision mediump float;",
-			    "uniform vec4 u_color;",
-			    "void main()",
-			    "{",
-			    "gl_FragColor = u_color;",
-			    "}"
-		    ];
-
-	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-	gl.shaderSource(vertexShader, vertexShaderLines.join("\n"));
-	gl.compileShader(vertexShader);
-	var vertexShaderCompileStatus = gl.getShaderParameter(vertexShader,
-	                                                      gl.COMPILE_STATUS);
-	if (!vertexShaderCompileStatus)
-	{
-		console.log(gl.getShaderInfoLog(vertexShader));
-	}
-
-	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-	gl.shaderSource(fragmentShader, fragmentShaderLines.join("\n"));
-	gl.compileShader(fragmentShader);
-
-	var fragmentShaderCompileStatus = gl.getShaderParameter(fragmentShader,
-	                                                        gl.COMPILE_STATUS);
-	if (!fragmentShaderCompileStatus)
-	{
-		console.log(gl.getShaderInfoLog(fragmentShader));
-	}
-
-	var shaderProgram = gl.createProgram();
-	this.shaderProgram = shaderProgram;
-
-	gl.attachShader(shaderProgram, vertexShader);
-	gl.attachShader(shaderProgram, fragmentShader);
-
-	gl.linkProgram(shaderProgram);
-	gl.useProgram(shaderProgram);
-
-	this.positionAtribute = gl.getAttribLocation(shaderProgram, "a_position");
-	gl.enableVertexAttribArray(this.positionAtribute);
-
-	this.colorUniform = gl.getUniformLocation(shaderProgram, "u_color");
+	this.shaderComponent.glUse(gl);
 
 	var vertexBuffer = gl.createBuffer();
 	this.vertexBuffer = vertexBuffer;
@@ -114,13 +60,42 @@ Renderer.prototype.renderWorld = function(world)
 
 Renderer.prototype.startFrame = function()
 {
+	var canvas = this.canvas;
+
+	var canvasWidth = canvas.clientWidth;
+	var canvasHeight = canvas.clientHeight;
+
+	if (this.canvasWidth !== canvasWidth
+	    || this.canvasHeight !== canvasHeight)
+	{
+		this.canvasWidth = canvasWidth;
+		this.canvasHeight = canvasHeight;
+
+		this.onResizeCanvas(canvasWidth, canvasHeight);
+	}
+
 	var gl = this.gl;
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+	this.shaderComponent.glUse(gl);
+	this.camera.glSetUniformData(gl, this.shaderComponent);
+};
+
+Renderer.prototype.onResizeCanvas = function(width, height)
+{
+	var canvas = this.canvas;
+
+	canvas.width = width;
+	canvas.height = height;
+
+	this.camera.aspectRatio = width / height;
+
+	this.gl.viewport(0, 0, width, height);
 };
 
 Renderer.prototype.renderUnits = function(units0, units1)
 {
-	// var indices = VectorUnit.stateIndices;
+	var indices = VectorUnit.stateIndices;
 
 	var unitCount0 = units0.length;
 	var unitCount1 = units1.length;
@@ -137,9 +112,12 @@ Renderer.prototype.renderUnits = function(units0, units1)
 		var unit0 = units0[unitIndex0];
 		// var renderComponentId = unit.renderComponentId;
 
-		// var bodyRadius = unit.state[indices.bodyRadius];
 		var position0 = unit0.position;
-		vertexBufferData.set(position0, unitIndex0 * vertexValueCount);
+		var state0 = unit0.state;
+		var index0 = unitIndex0 * vertexValueCount;
+
+		vertexBufferData.set(position0, index0);
+		vertexBufferData[index0 + 3] = state0[indices.bodyRadius];
 	}
 
 	for (var unitIndex1 = 0; unitIndex1 < unitCount1; unitIndex1++)
@@ -147,23 +125,51 @@ Renderer.prototype.renderUnits = function(units0, units1)
 		var unit1 = units1[unitIndex1];
 		// var renderComponentId = unit.renderComponentId;
 
-		// var bodyRadius = unit.state[indices.bodyRadius];
 		var position1 = unit1.position;
-		vertexBufferData.set(position1,
-		                     (unitCount0 + unitIndex1) * vertexValueCount);
+		var state1 = unit1.state;
+		var index1 = (unitCount0 + unitIndex1) * vertexValueCount;
+
+		vertexBufferData.set(position1, index1);
+		vertexBufferData[index1 + 3] = state1[indices.bodyRadius];
 	}
 
 	var gl = this.gl;
+	var colorUniform = this.shaderComponent.colorUniform;
+	var positionAttribute = this.shaderComponent.positionAttribute;
 
 	gl.bufferData(gl.ARRAY_BUFFER, vertexBufferData, gl.DYNAMIC_DRAW);
-	gl.vertexAttribPointer(this.positionAtribute, 4, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(positionAttribute, 4, gl.FLOAT, false, 0, 0);
 
 	// team0 - red
-	gl.uniform4f(this.colorUniform, 1.0, 0.0, 0.0, 1.0);
+	gl.uniform4f(colorUniform, 1.0, 0.0, 0.0, 1.0);
 	gl.drawArrays(gl.POINTS, 0, unitCount0);
 
 	// team1 - blue
-	gl.uniform4f(this.colorUniform, 0.0, 0.0, 1.0, 1.0);
+	gl.uniform4f(colorUniform, 0.0, 0.0, 1.0, 1.0);
 	gl.drawArrays(gl.POINTS, unitCount0, unitCount1);
 };
 
+Renderer.prototype.initControls = function()
+{
+
+};
+
+Renderer.prototype.onMouseDown = function(event)
+{
+	assertDOMEvent(event);
+
+	this.mouseDown = true;
+	this.mouseX = event.clientX;
+	this.mouseY = event.clientY;
+};
+
+Renderer.prototype.onMouseMove = function(event)
+{
+	assertDOMEvent(event);
+
+	if (this.mouseDown)
+	{
+		var mouseX = event.mouseX;
+		var mouseY = event.mouseY;
+	}
+};

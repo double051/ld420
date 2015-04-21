@@ -5,8 +5,8 @@ var UnitFactory = function()
 	this.unit = VectorUnit.new();
 
 	// defining a marine
-	this.speed = 2.0;
-	this.bodyRadius = 1.0;
+	this.speed = 1.0;
+	this.bodyRadius = 5.0;
 
 	this.maxHealth = 50.0;
 	this.armor = 0.0;
@@ -44,4 +44,17 @@ UnitFactory.prototype.setUnitState = function()
 
 	state[indicies.cooldown] = this.cooldown;
 	state[indicies.cooldownRemaining] = 0.0;
+};
+
+UnitFactory.prototype.getUnitCopy = function()
+{
+	var unitCopy = this.unit.copy();
+
+	var indices = VectorUnit.stateIndices;
+	unitCopy.state[indices.speed] += (1 * Math.random() - 0.5);
+	// unitCopy.state[indices.changeHealth] += (40 * Math.random() - 20);
+	unitCopy.state[indices.range] += (5 * Math.random() - 4.9);
+	unitCopy.state[indices.bodyRadius] += (6 * Math.random() - 2);
+
+	return unitCopy;
 };

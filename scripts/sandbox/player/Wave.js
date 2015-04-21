@@ -67,8 +67,10 @@ Wave.prototype.setUnitSpawnPositions = function()
 	var ringBodyRadius = 0.0;
 	var ringBodyRadians = 0.0;
 
-	var spawnRadius = 0.0;
+	var spawnRadius = 3.0;
 	var spawnRadians = 0.0;
+
+	var spawnZPositionCumulative = 0.2;
 
 	var units = this.sortUnitsByBodyRadiusDescending();
 	var unitCount = units.length;
@@ -102,7 +104,8 @@ Wave.prototype.setUnitSpawnPositions = function()
 		var position = unit.position;
 		position[0] = spawnRadius * Math.cos(spawnRadians);
 		position[1] = spawnRadius * Math.sin(spawnRadians);
-		position[2] = spawnPositionZ;
+		position[2] = spawnPositionZ + (spawnPositionZ > 0 ? 1 : -1)
+		                               * (unitIndex * spawnZPositionCumulative);
 	}
 };
 

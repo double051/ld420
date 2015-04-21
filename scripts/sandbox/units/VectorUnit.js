@@ -117,6 +117,8 @@ VectorUnit.prototype.actOnTarget = function(selfCopy,
 	var bodyRadiusIndex = indices.bodyRadius;
 
 	var state = this.state;
+	var copyState = selfCopy.state;
+
 	var targetState = target.state;
 	var targetCopyState = targetCopy.state;
 
@@ -170,16 +172,19 @@ VectorUnit.prototype.actOnTarget = function(selfCopy,
 			//             + healthDelta);
 
 			// reset cooldown
-			state[cooldownRemaining] = state[indices.cooldown];
+			copyState[cooldownRemainingIndex] = state[indices.cooldown];
 		}
 		else
 		{
 			// sit, wait, grow cooldown
-			state[cooldownRemainingIndex] -= timeDelta;
+			copyState[cooldownRemainingIndex] -= timeDelta;
 		}
 	}
 	else
 	{
+		// move, grow cooldown
+		copyState[cooldownRemainingIndex] -= timeDelta;
+
 		// move to be in range
 		var direction = selfCopy.direction;
 		if (distance !== 0)
@@ -189,12 +194,21 @@ VectorUnit.prototype.actOnTarget = function(selfCopy,
 			direction[2] = distanceZ / distance;
 
 			var speed = state[indices.speed];
+			if (speed <= 0)
+			{
+				var wat = true;
+			}
+
 			var distanceMoved = speed * timeDelta;
 
 			var positionCopy = selfCopy.position;
 			positionCopy[0] += direction[0] * distanceMoved;
 			positionCopy[1] += direction[1] * distanceMoved;
 			positionCopy[2] += direction[2] * distanceMoved;
+		}
+		else
+		{
+			var wat = true;
 		}
 	}
 };
@@ -276,7 +290,10 @@ VectorUnit.prototype.getNewHealth = function(health,
                                              armorPiercing,
                                              changeHealth)
 {
-	var absorb = changeHealth >= 0 ? 0 : Math.max(0.0, armor - armorPiercing);
+	var absorb = (changeHealth >= 0
+		? 0
+		: Math.max(0.0, armor - armorPiercing));
+
 	var newHealth = Math.min(maxHealth,
 	                         health + Math.max(1, changeHealth - absorb));
 
